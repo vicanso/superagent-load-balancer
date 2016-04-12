@@ -1,0 +1,30 @@
+{
+  "name": "superagent-load-balancer",
+  "version": "0.0.1",
+  "description": "load balancer plugin for superagent",
+  "scripts": {
+    "test": "node ./node_modules/.bin/eslint ./*.js && node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./test/*.js --"
+  },
+  "keywords": [
+    "superagent",
+    "plugin"
+  ],
+  "license": "MIT",
+  "author": "Tree Xie <vicansocanbico@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vicanso/superagent-load-balancer.git"
+  },
+  "readmeFilename": "README.md",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^2.5.1",
+    "eslint-config-airbnb": "^6.2.0",
+    "istanbul": "^0.4.2",
+    "mocha": "^2.4.5",
+    "superagent": "^1.8.3"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  }
+}

@@ -88,13 +88,46 @@ describe('superagent-load-balancer', function() {
     getUser();
   });
 
-  it('get backend by uri success', function(done) {
+  it('get backend by first success', function(done) {
+    var count = 0;
+    var backends = [{
+      host: 'domain1.com'
+    }, {
+      host: 'domain2.com'
+    }];
+    var balancer = loadBalancer.get(backends, 'first');
+    var getUser = function() {
+      mockRequest.get('/user')
+        .use(balancer)
+        .end(function(err, res) {
+          if (err) {
+            done(err);
+          } else {
+            count++;
+            if (count <= 5) {
+              assert.equal(res.body.url, 'http://domain1.com/user');
+            } else {
+              assert.equal(res.body.url, 'http://domain2.com/user');
+            }
+            if (count === 5) {
+              backends[0].disabled = true;
+            } else if (count === 10) {
+              return done();
+            }
+            getUser();            
+          }
+        });
+    };
+    getUser();
+  });
+
+  it('get backend by url success', function(done) {
     var count = 0;
     var balancer = loadBalancer.get([{
       host: 'domain1.com'
     }, {
       host: 'domain2.com'
-    }], 'uri');
+    }], 'url');
     var complete = function() {
       count++;
       if (count === 2) {
@@ -112,13 +145,13 @@ describe('superagent-load-balancer', function() {
           complete();
         }
       });
-    mockRequest.get('/user1')
+    mockRequest.get('/user?name=abc')
       .use(balancer)
       .end(function(err, res) {
         if (err) {
           done(err);
         } else {
-          assert.equal(res.body.url, 'http://domain1.com/user1');
+          assert.equal(res.body.url, 'http://domain1.com/user?name=abc');
           complete();
         }
       });
@@ -159,6 +192,53 @@ describe('superagent-load-balancer', function() {
     getUser();
   });
 
+  it('get backend by url path success', function(done) {
+    var count = 0;
+    var balancer = loadBalancer.get([{
+      host: 'domain1.com'
+    }, {
+      host: 'domain2.com'
+    }], 'url-path');
+    var complete = function() {
+      count++;
+      if (count === 3) {
+        done();
+      }
+    };
+
+    mockRequest.get('/user')
+      .use(balancer)
+      .end(function(err, res) {
+        if (err) {
+          done(err);
+        } else {
+          assert.equal(res.body.url, 'http://domain2.com/user');
+          complete();
+        }
+      });
+    mockRequest.get('/user?name=abc')
+      .use(balancer)
+      .end(function(err, res) {
+        if (err) {
+          done(err);
+        } else {
+          assert.equal(res.body.url, 'http://domain2.com/user?name=abc');
+          complete();
+        }
+      });
+
+    mockRequest.get('/user1')
+      .use(balancer)
+      .end(function(err, res) {
+        if (err) {
+          done(err);
+        } else {
+          assert.equal(res.body.url, 'http://domain1.com/user1');
+          complete();
+        }
+      });
+  });
+
   it('set backend with ip attr success', function(done) {
     var balancer = loadBalancer.get([{
       host: 'domain1.com',
@@ -189,7 +269,7 @@ describe('superagent-load-balancer', function() {
       host: 'domain1.com'
     }, {
       host: 'domain2.com'
-    }], function(backends, uri) {
+    }], function(backends, url) {
       return backends[backends.length - 1];
     });
 
@@ -255,14 +335,14 @@ describe('superagent-load-balancer', function() {
 
   it('health check', function(done) {
     var backends = [{
-      host: 'domain1.com'
+      host: '127.0.0.1'
     }, {
-      host: 'domain2.com'
+      host: '127.0.0.1'
     }];
     loadBalancer.healthCheck(backends, {
       ping: function(backend, cb) {
         var url = 'http://' + backend.host + '/ping';
-        request.get(url).timeout(10).end(cb);
+        request.get(url).end(cb);
       },
       interval: 10
     });
@@ -272,7 +352,7 @@ describe('superagent-load-balancer', function() {
         assert.equal(item.disabled, true);
       });
       done();
-    }, 200);
+    }, 200).unref();
 
   });
 });

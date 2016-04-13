@@ -1,4 +1,5 @@
 'use strict';
+var urlParse = require('url').parse;
 /**
  * [pass check url is pass]
  * @param  {[type]} url [description]
@@ -53,7 +54,7 @@ function getBalanceHandler(type) {
     return backend;
   };
 
-  var getByUri = function getByUri(backends, url) {
+  var getByUrl = function getByUrl(backends, url) {
     var arr = [];
     var i = 0;
     backends.forEach(function filterBackend(item) {
@@ -63,6 +64,11 @@ function getBalanceHandler(type) {
     });
     i = url.length % arr.length;
     return arr[i];
+  };
+
+  var getByUrlPath = function getByUrlPath(backends, url) {
+    var urlInfos = urlParse(url);
+    return getByUrl(backends, urlInfos.pathname);
   };
 
   var getByLeastconn = function getByLeastconn(backends) {
@@ -77,12 +83,29 @@ function getBalanceHandler(type) {
     });
     return backend;
   };
+
+  var getByFirst = function getByFirst(backends) {
+    var backend;
+    backends.forEach(function first(item) {
+      if (!backend && !item.disabled) {
+        backend = item;
+      }
+    });
+    return backend;
+  };
+
   switch (type) {
-    case 'uri':
-      fn = getByUri;
+    case 'url':
+      fn = getByUrl;
       break;
     case 'leastconn':
       fn = getByLeastconn;
+      break;
+    case 'first':
+      fn = getByFirst;
+      break;
+    case 'url-path':
+      fn = getByUrlPath;
       break;
     default:
       fn = getByRoundRobin;
@@ -107,6 +130,7 @@ function loadBalancer(backends, type) {
       return self;
     }
     backend = baclanceHaldner(backends, url);
+    self._backend = backend;
     // request url by ip addresss, so set http host header
     if (backend.ip && backend.host) {
       self.set('Host', backend.host);

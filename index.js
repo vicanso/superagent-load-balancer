@@ -42,13 +42,22 @@ function getBalanceHandler(type) {
     var backend;
     var i = roundRobinIndex++;
     var count = 0;
+    var firstAvailableBackend;
     backends.forEach(function countWeight(item) {
+      if (item.disabled) {
+        return;
+      }
       count += (item.weight || 1);
-      if (!backend && i < count && !item.disabled) {
+      // 由于可能本来命中的backend刚好disabled, 确保backend有选中一个可用的
+      if (!firstAvailableBackend) {
+        firstAvailableBackend = item;
+      }
+      if (!backend && i < count) {
         backend = item;
       }
     });
-    if (count === roundRobinIndex) {
+    backend = backend || firstAvailableBackend;
+    if (roundRobinIndex >= count) {
       roundRobinIndex = 0;
     }
     return backend;
@@ -76,6 +85,9 @@ function getBalanceHandler(type) {
     var max = Number.MAX_VALUE;
     backends.forEach(function leastconn(item) {
       var conn = item.conn || 0;
+      if (item.disabled) {
+        return;
+      }
       if (conn < max) {
         backend = item;
         max = conn;
@@ -130,7 +142,10 @@ function loadBalancer(backends, type) {
       return self;
     }
     backend = baclanceHaldner(backends, url);
-    self._backend = backend;
+    if (!backend) {
+      throw new Error('There is no server available');
+    }
+    self.backend = backend;
     // request url by ip addresss, so set http host header
     if (backend.ip && backend.host) {
       self.set('Host', backend.host);

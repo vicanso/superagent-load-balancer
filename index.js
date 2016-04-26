@@ -167,7 +167,7 @@ function loadBalancer(backends, type) {
   };
 }
 
-function check(backend, ping, interval) {
+function check(backend, ping) {
   var item = backend;
   ping(item, function pingCb(err) {
     if (err) {
@@ -175,9 +175,6 @@ function check(backend, ping, interval) {
     } else {
       item.disabled = false;
     }
-    setTimeout(function loopCheck() {
-      check(item, ping, interval);
-    }, interval).unref();
   });
 }
 
@@ -187,9 +184,11 @@ function healthCheck(backends, options) {
     throw new Error('options can not be null and ping must be a function');
   }
   interval = options.interval || 1000;
-  backends.forEach(function eachCheck(backend) {
-    check(backend, options.ping, interval);
-  });
+  return setInterval(function intervalCheck() {
+    backends.forEach(function eachCheck(backend) {
+      check(backend, options.ping, interval);
+    });
+  }, interval).unref();
 }
 
 exports.get = loadBalancer;

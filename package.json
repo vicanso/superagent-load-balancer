@@ -1,6 +1,6 @@
 {
   "name": "superagent-load-balancer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "load balancer plugin for superagent",
   "scripts": {
     "test": "node ./node_modules/.bin/eslint ./*.js && node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./test/*.js --"

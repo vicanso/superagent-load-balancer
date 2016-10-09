@@ -353,6 +353,27 @@ describe('superagent-load-balancer', function() {
       });
       done();
     }, 200).unref();
+  });
 
+  it('health check promise', function(done) {
+    var backends = [{
+      host: '127.0.0.1'
+    }, {
+      host: '127.0.0.1'
+    }];
+    loadBalancer.healthCheck(backends, {
+      ping: function(backend, cb) {
+        var url = 'http://' + backend.host + '/ping';
+        return request.get(url);
+      },
+      interval: 10
+    });
+
+    setTimeout(function() {
+      backends.forEach(function(item) {
+        assert.equal(item.disabled, true);
+      });
+      done();
+    }, 200).unref();
   });
 });

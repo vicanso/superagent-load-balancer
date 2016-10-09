@@ -170,13 +170,19 @@ function loadBalancer(backends, type) {
 
 function check(backend, ping) {
   var item = backend;
-  ping(item, function pingCb(err) {
+  var cb = function pingCb(err) {
     if (err) {
       item.disabled = true;
     } else {
       item.disabled = false;
     }
-  });
+  };
+  var result = ping(item, cb);
+  if (result && result.then) {
+    result.then(function resolve() {
+      cb();
+    }, cb);
+  }
 }
 
 function healthCheck(backends, options) {

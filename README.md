@@ -58,7 +58,7 @@ request.get('/user')
 
 - `options` {ping: function, interval: ms}
 
-```
+```js
 var request = require('superagent');
 var superagentLoadBalancer = require('superagent-load-balancer');
 superagentLoadBalancer.healthCheck([

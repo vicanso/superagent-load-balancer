@@ -1,4 +1,5 @@
 'use strict';
+
 var urlParse = require('url').parse;
 /**
  * [pass check url is pass]
@@ -40,7 +41,6 @@ function getBalanceHandler(type) {
   var fn;
   var getByRoundRobin = function getByRoundRobin(backends) {
     var backend;
-    var i = roundRobinIndex++;
     var count = 0;
     var firstAvailableBackend;
     backends.forEach(function countWeight(item) {
@@ -52,10 +52,11 @@ function getBalanceHandler(type) {
       if (!firstAvailableBackend) {
         firstAvailableBackend = item;
       }
-      if (!backend && i < count) {
+      if (!backend && roundRobinIndex < count) {
         backend = item;
       }
     });
+    roundRobinIndex += 1;
     backend = backend || firstAvailableBackend;
     if (roundRobinIndex >= count) {
       roundRobinIndex = 0;
@@ -156,7 +157,7 @@ function loadBalancer(backends, type) {
     if (type === 'leastconn') {
       backend.conn = (backend.conn || 0) + 1;
       complete = function completeRequest() {
-        backend.conn--;
+        backend.conn -= 1;
         self.removeListener('error', complete);
         self.removeListener('response', complete);
       };

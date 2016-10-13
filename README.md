@@ -1,6 +1,7 @@
 # superagent-load-balancer
 
 [![Build Status](https://travis-ci.org/vicanso/superagent-load-balancer.svg?branch=master)](https://travis-ci.org/vicanso/superagent-load-balancer)
+[![Coverage Status](https://img.shields.io/coveralls/vicanso/influxdb-nodejs/master.svg?style=flat)](https://coveralls.io/r/vicanso/superagent-load-balancer?branch=master)
 [![npm](http://img.shields.io/npm/v/superagent-load-balancer.svg?style=flat-square)](https://www.npmjs.org/package/superagent-load-balancer)
 [![Github Releases](https://img.shields.io/npm/dm/superagent-load-balancer.svg?style=flat-square)](https://github.com/vicanso/superagent-load-balancer)
 

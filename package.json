@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "load balancer plugin for superagent",
   "scripts": {
-    "test": "node ./node_modules/.bin/eslint ./*.js && node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./test/*.js --"
+    "test": "node ./node_modules/.bin/eslint ./lib/*.js && node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./test/*.js --"
   },
   "keywords": [
     "superagent",
@@ -18,18 +18,17 @@
     "url": "https://github.com/vicanso/superagent-load-balancer.git"
   },
   "readmeFilename": "README.md",
-  "dependencies": {},
   "devDependencies": {
-    "eslint": "^3.6.1",
-    "eslint-config-airbnb": "^12.0.0",
-    "eslint-plugin-import": "^1.16.0",
-    "eslint-plugin-jsx-a11y": "^2.2.2",
-    "eslint-plugin-react": "^6.3.0",
+    "eslint": "^3.12.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.8.0",
     "istanbul": "^0.4.5",
-    "mocha": "^2.5.3",
-    "superagent": "^2.3.0"
+    "mocha": "^3.2.0",
+    "superagent": "^3.3.1"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.0.0"
   }
 }

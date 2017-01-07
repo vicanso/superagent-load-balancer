@@ -1,3 +1,5 @@
+'use strict';
+
 const assert = require('assert');
 const request = require('superagent');
 const Balancer = require('../lib/balancer');

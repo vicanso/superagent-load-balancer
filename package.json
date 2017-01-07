@@ -1,6 +1,6 @@
 {
   "name": "superagent-load-balancer",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "load balancer plugin for superagent",
   "scripts": {
     "size": "t=\"$(npm pack .)\"; wc -c \"${t}\"; tar tvf \"${t}\"; rm \"${t}\";",

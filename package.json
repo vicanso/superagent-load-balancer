@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "load balancer plugin for superagent",
   "scripts": {
+    "size": "t=\"$(npm pack .)\"; wc -c \"${t}\"; tar tvf \"${t}\"; rm \"${t}\";",
     "test": "node ./node_modules/.bin/eslint ./lib/*.js && node ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./test/*.js --"
   },
   "keywords": [
@@ -11,6 +12,7 @@
     "load balance",
     "load balancer"
   ],
+  "main": "lib/balancer",
   "license": "MIT",
   "author": "Tree Xie <vicansocanbico@gmail.com>",
   "repository": {

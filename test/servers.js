@@ -2,8 +2,6 @@ const assert = require('assert');
 
 const Servers = require('../lib/servers');
 
-
-
 describe('Servers Chooser', () => {
   it('get server by round-robin', () => {
     const serverList = [
@@ -162,6 +160,34 @@ describe('Servers Chooser', () => {
 
     chooser.decrease(availableServers[1].id);
     assert.equal(chooser.getByLeastCount().name, availableServers[1].name);
+  });
+
+
+  it('get server with backup', () => {
+    const serverList = [
+      {
+        name: 'localhost',
+        ip: '127.0.0.1',
+        port: 8086,
+        backup: true,
+      },
+      {
+        name: 'en0',
+        ip: '192.168.1.1',
+        port: 8086,
+      },
+    ];
+    const chooser = new Servers(serverList);
+    let availableServers = chooser.getAvailableServers();
+    serverList.forEach((item) => {
+      const server = chooser.getByRoundRobin();
+      assert.equal(server.name, availableServers[0].name);
+    });
+    chooser.disable(availableServers[0].id);
+    serverList.forEach((item) => {
+      const server = chooser.getByRoundRobin();
+      assert.equal(server.name, serverList[0].name);
+    });
   });
 
 });

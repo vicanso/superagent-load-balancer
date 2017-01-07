@@ -81,11 +81,12 @@ describe('Balancer', () => {
         port: 8086,
       },
     ], 'leastconn');
+    const chooser = balancer.chooser;
     let backend = balancer.getBackend('/users/me');
     assert.equal(backend.ip, '127.0.0.1');
-    balancer.increaseConn(backend.id);
+    chooser.increase(backend.id);
     assert.equal(balancer.getBackend('/users/me').ip, '192.168.1.2');
-    balancer.decreaseConn(backend.id);
+    chooser.decrease(backend.id);
     assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
   });
 
@@ -125,28 +126,79 @@ describe('Balancer', () => {
   });
 
 
-  it('get baidu.com by balancer', (done) => {
+  it('request by balancer', (done) => {
     const balancer = new Balancer([
       {
-        host: 'www.baidu.com',
-        ip: '123.125.114.144',
+        ip: '127.0.0.1',
+        port: 8086,
       },
       {
-        host: 'www.baidu.com',
-        protocol: 'https',
+        host: 'localhost',
+        ip: '127.0.0.1',
+        port: 8086,
       },
     ]);
     const plugin = balancer.plugin();
-    request.get('/')
+    request.get('/ping')
       .use(plugin)
       .then((res) => {
-        assert.equal(res.request.backendServer.ip, '123.125.114.144');
-        assert(res.text.indexOf('http://www.baidu.com/') !== -1);
-        assert(res.text);
-        return request.get('/').use(plugin);
+        assert.equal(res.status, 204);
+        assert.equal(res.request.backendServer.ip, '127.0.0.1');
+        return request.get('/ping').use(plugin);
       }).then((res) => {
-        assert.equal(res.request.backendServer.host, 'www.baidu.com');
-        assert(res.text.indexOf('https') !== -1);
+        assert.equal(res.status, 204);
+        assert.equal(res.request.backendServer.host, 'localhost');
+        done();
+      }).catch(done);
+  });
+
+  it('request by leastconn balancer', (done) => {
+    const balancer = new Balancer([
+      {
+        ip: '127.0.0.1',
+        port: 8086,
+      },
+      {
+        host: 'localhost',
+        port: 8086,
+      },
+    ], 'leastconn');
+    const plugin = balancer.plugin();
+    request.get('/ping')
+      .use(plugin)
+      .then((res) => {
+        assert.equal(res.status, 204);
+        assert.equal(res.request.backendServer.ip, '127.0.0.1');
+        return request.get('/ping').use(plugin);
+      }).then((res) => {
+        assert.equal(res.status, 204);
+        assert.equal(res.request.backendServer.ip, '127.0.0.1');
+        done();
+      }).catch(done);
+    request.get('/ping')
+      .use(plugin)
+      .then((res) => {
+        assert.equal(res.status, 204);
+        assert.equal(res.request.backendServer.host, 'localhost')
+      }).catch(done);
+  });
+
+  it('request https://www.baidu.com/ by balancer', (done) => {
+    const balancer = new Balancer([
+      {
+        ip: '127.0.0.1',
+        port: 8086,
+      },
+      {
+        host: 'localhost',
+        port: 8086,
+      },
+    ]);
+    const plugin = balancer.plugin();
+    request.get('https://www.baidu.com/')
+      .use(plugin)
+      .then((res) => {
+        assert.equal(res.status, 200);
         done();
       }).catch(done);
   });

@@ -105,6 +105,36 @@ request.get('/user')
   .catch(console.error);
 
 ```
+
+### getAvailableServers
+
+Get the available server list. It is not disabled and backup.
+
+```js
+const request = require('superagent');
+const Balancer = require('superagent-load-balancer');
+const balancer = new Balancer([
+  {
+    host: 'domain1.com',
+    weight: 10,
+  },
+  {
+    host: 'domain2.com',
+    weight: 2,
+    backup: true,
+  },
+]);
+const ping = (backend) => {
+  const url = `http://${backend.host}/ping`;
+  return request.get(url).timeout(300);
+};
+balancer.startHealthCheck({
+  ping,
+});
+// [ { id: '51d27b36cb9c34ff', host: 'domain1.com', weight: 10 } ]
+console.info(balancer.getAvailableServers());
+```
+
 ## License
 
 MIT

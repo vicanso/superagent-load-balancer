@@ -205,4 +205,23 @@ describe('Balancer', () => {
       }).catch(done);
   });
 
+
+  it('getAvailableServers ', () => {
+    const balancer = new Balancer([
+      {
+        host: 'localhost',
+        ip: '127.0.0.1',
+        port: 8086,
+      },
+      {
+        ip: '127.0.0.1',
+        port: 8086,
+        backup: true,
+      },
+    ]);
+    const serverList = balancer.getAvailableServers();
+    assert.equal(serverList.length, 1);
+    assert.equal(serverList[0].host, 'localhost');
+  });
+
 });

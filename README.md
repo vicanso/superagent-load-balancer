@@ -15,7 +15,7 @@ $ npm install superagent-load-balancer
 
 ## Examples
 
-View the [./examples](examples) directory for working examples. 
+View the [./examples](examples) directory for working examples.
 
 
 ## API
@@ -23,23 +23,15 @@ View the [./examples](examples) directory for working examples.
 ### get
 
 - `backends` the backend list
-
+  - `name` The name of backend
+  - `host` The host of backend
+  - `protocol` The protocol, optional, default is 'http'
+  - `ip`  The ip of backend, optional
+  - `port` The port of backend, optional
+  - `weight` The weight of backend, it is for 'round-robin'
+  - `backup` Set the backend as backup, optional
 - `type` balance algorithm: `url`, `leastconn`, `round-robin`, `first`, `url-path`, default is `round-robin`
 
-
-- `backend.name` The name of backend
-
-- `backend.host` The host of backend
-
-- `backend.protocol` The protocol, optional, default is 'http'
-
-- `backend.ip`  The ip of backend, optional
-
-- `backend.port` The port of backend, optional
-
-- `backend.weight` The weight of backend, it is for 'round-robin'
-
-- `backend.backup` Set the backend as backup, optional
 
 ```js
 const request = require('superagent');
@@ -71,8 +63,10 @@ request.get('/user')
 ### startHealthCheck
 
 - `options` {ping: function, interval: ms}
-
-The ping function will return promise. If resolve, the backend is health. If reject, the backend is unhealthy.
+  - `ping` ping function, the function will return promise. If resolve, the backend is healthy. If reject, the backend is sick.
+  - `ms`  check interval
+  - `window` each check the total count of ping
+  - `threshold` each check the healthy count is bigger than threshold, the backend is healthy. Otherwise is sick
 
 ```js
 const request = require('superagent');

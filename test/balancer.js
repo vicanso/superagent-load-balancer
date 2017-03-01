@@ -33,8 +33,12 @@ describe('Balancer', () => {
       },
     ], 'first');
 
-    assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
-    assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
+    assert.equal(balancer.getBackend({
+      url: '/users/me',
+    }).ip, '127.0.0.1');
+    assert.equal(balancer.getBackend({
+      url: '/users/me',
+    }).ip, '127.0.0.1');
   });
 
   it('url balancer', () => {
@@ -49,8 +53,12 @@ describe('Balancer', () => {
       },
     ], 'url');
 
-    assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
-    assert.equal(balancer.getBackend('/users/me?no-cache').ip, '192.168.1.2');
+    assert.equal(balancer.getBackend({
+      url: '/users/me',
+    }).ip, '127.0.0.1');
+    assert.equal(balancer.getBackend({
+      url: '/users/me?no-cache',
+    }).ip, '192.168.1.2');
   });
 
   it('url-path balancer', () => {
@@ -65,9 +73,15 @@ describe('Balancer', () => {
       },
     ], 'url-path');
 
-    assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
-    assert.equal(balancer.getBackend('/users/me?cache=false').ip, '127.0.0.1');
-    assert.equal(balancer.getBackend('/users/ab?cache=false').ip, '192.168.1.2');
+    assert.equal(balancer.getBackend({
+      url: '/users/me',
+    }).ip, '127.0.0.1');
+    assert.equal(balancer.getBackend({
+      url: '/users/me?cache=false',
+    }).ip, '127.0.0.1');
+    assert.equal(balancer.getBackend({
+      url: '/users/ab?cache=false',
+    }).ip, '192.168.1.2');
   });
 
 
@@ -83,12 +97,18 @@ describe('Balancer', () => {
       },
     ], 'leastconn');
     const chooser = balancer.chooser;
-    let backend = balancer.getBackend('/users/me');
+    let backend = balancer.getBackend({
+      url: '/users/me',
+    });
     assert.equal(backend.ip, '127.0.0.1');
     chooser.increase(backend.id);
-    assert.equal(balancer.getBackend('/users/me').ip, '192.168.1.2');
+    assert.equal(balancer.getBackend({
+      url: '/users/me',
+    }).ip, '192.168.1.2');
     chooser.decrease(backend.id);
-    assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
+    assert.equal(balancer.getBackend({
+      url: '/users/me',
+    }).ip, '127.0.0.1');
   });
 
 
@@ -119,9 +139,15 @@ describe('Balancer', () => {
       interval: 300,
     }).unref();
     setTimeout(() => {
-      assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
-      assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
-      assert.equal(balancer.getBackend('/users/me').ip, '127.0.0.1');
+      assert.equal(balancer.getBackend({
+        url: '/users/me',
+      }).ip, '127.0.0.1');
+      assert.equal(balancer.getBackend({
+        url: '/users/me',
+      }).ip, '127.0.0.1');
+      assert.equal(balancer.getBackend({
+        url: '/users/me',
+      }).ip, '127.0.0.1');
       done();
     }, 1000).unref();
   });
@@ -223,4 +249,29 @@ describe('Balancer', () => {
     assert.equal(serverList[0].host, 'localhost');
   });
 
+  it('addAlgorithm', () => {
+    const balancer = new Balancer([
+      {
+         host: 'localhost',
+         ip: '127.0.0.1',
+         port: 8086,
+      },
+      {
+         ip: '127.0.0.1',
+         port: 8086,
+      },
+    ], 'even');
+    balancer.addAlgorithm('use-backup', (request) => {
+      const index = Math.floor(Math.random() * 1000);
+      if (index % 2 === 0) {
+        return index;
+      }
+      return index + 1;
+    });
+    for (let i = 0; i < 100; i++) {
+      assert.equal(balancer.getBackend({
+        url: `${Math.random()}`,
+      }).ip, '127.0.0.1');
+    }
+  });
 });

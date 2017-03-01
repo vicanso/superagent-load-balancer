@@ -129,6 +129,39 @@ balancer.startHealthCheck({
 console.info(balancer.getAvailableServers());
 ```
 
+### addAlgorithm
+
+Add the custom load balance algorithm
+
+- `name` The algorithm's name
+
+- `fn` The algorithm, it should return an integer.
+
+```js
+const request = require('superagent');
+const Balancer = require('superagent-load-balancer');
+const balancer = new Balancer([
+  {
+    host: 'domain1.com',
+  },
+  {
+    host: 'domain2.com',
+  },
+], 'getByUrl');
+balancer.addAlgorithm('getByUrl', (request) => {
+  return request.url.length;
+});
+
+const plugin = balancer.plugin();
+
+request.get('/user')
+  .use(plugin)
+  .then((res) => {
+    console.info(res.body);
+  })
+  .catch(console.error);
+```
+
 ## License
 
 MIT

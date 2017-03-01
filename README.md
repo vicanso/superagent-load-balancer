@@ -23,13 +23,21 @@ View the [./examples](examples) directory for working examples.
 ### get
 
 - `backends` the backend list
+
   - `name` The name of backend
+
   - `host` The host of backend
+
   - `protocol` The protocol, optional, default is 'http'
+
   - `ip`  The ip of backend, optional
+
   - `port` The port of backend, optional
+
   - `weight` The weight of backend, it is for 'round-robin'
+
   - `backup` Set the backend as backup, optional
+
 - `type` balance algorithm: `url`, `leastconn`, `round-robin`, `first`, `url-path`, default is `round-robin`
 
 
@@ -63,9 +71,13 @@ request.get('/user')
 ### startHealthCheck
 
 - `options` {ping: function, interval: ms}
+
   - `ping` ping function, the function will return promise. If resolve, the backend is healthy. If reject, the backend is sick.
+
   - `ms`  check interval
+
   - `window` each check the total count of ping
+
   - `threshold` each check the healthy count is bigger than threshold, the backend is healthy. Otherwise is sick
 
 ```js
@@ -95,10 +107,50 @@ request.get('/user')
   .use(plugin)
   .then((res) => {
     console.info(res.body);
-  })
-  .catch(console.error);
-
+  }).catch(console.error);
 ```
+
+### on
+
+Add listener function to `healthy` or `sick` event
+
+```js
+const request = require('superagent');
+const Balancer = require('superagent-load-balancer');
+const balancer = new Balancer([
+  {
+    host: 'domain1.com',
+    weight: 10,
+  },
+  {
+    host: 'domain2.com',
+    weight: 2,
+  },
+]);
+const ping = (backend) => {
+  const url = `http://${backend.host}/ping`;
+  return request.get(url).timeout(300);
+};
+balancer.startHealthCheck({
+  ping,
+});
+
+balancer.on('healthy', (server) => {
+  console.info(server);
+});
+balancer.on('sick', (server) => {
+  console.info(server);
+});
+
+const plugin = balancer.plugin();
+
+request.get('/user')
+  .use(plugin)
+  .then((res) => {
+    console.info(res.body);
+  }).catch(console.error);
+```
+
 
 ### getAvailableServers
 

@@ -112,7 +112,7 @@ request.get('/user')
 
 ### on
 
-Add listener function to `healthy` or `sick` event
+Add listener function to `healthy`, `sick`, `hit` event
 
 ```js
 const request = require('superagent');
@@ -141,6 +141,9 @@ balancer.on('healthy', (server) => {
 balancer.on('sick', (server) => {
   console.info(server);
 });
+balancer.on('hit', (server) => {
+  console.info(server);
+});
 
 const plugin = balancer.plugin();
 
@@ -154,7 +157,7 @@ request.get('/user')
 
 ### getAvailableServers
 
-Get the available server list. It is not disabled and backup.
+Get the available server list, which isn't disabled and backup.
 
 ```js
 const request = require('superagent');

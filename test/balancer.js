@@ -134,6 +134,10 @@ describe('Balancer', () => {
 
   it('request by balancer', (done) => {
     const balancer = new Balancer(backendList);
+    const portList = [8000, 8001];
+    balancer.on('hit', (backend) => {
+      assert.equal(backend.port, portList.shift());
+    });
     const plugin = balancer.plugin();
     request.get('/ping')
       .use(plugin)
